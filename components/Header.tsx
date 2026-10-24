@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 const items: [label: string, href: string, icon?: string][] = [
   ['Home', '/', 'fa-house'],
@@ -40,11 +41,14 @@ export default function Header() {
             className="flex items-center gap-3.5 group cursor-pointer select-none"
           >
             <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0">
-              <img
-                src="/logo.png"
-                alt="নীলমণি আদৰ্শ জাতীয় বিদ্যালয়"
-                className="w-full h-full object-contain filter drop-shadow-md transition-transform duration-300 ease-out group-hover:scale-105"
-              />
+                      <Image
+          src="/logo.png"
+          alt="নীলমণি আদৰ্শ জাতীয় বিদ্যালয়"
+          width={44}
+          height={44}
+          priority
+          className="w-full h-full object-contain filter drop-shadow-md transition-transform duration-300 ease-out group-hover:scale-105"
+        />
             </div>
 
             <div className="flex flex-col justify-center">
