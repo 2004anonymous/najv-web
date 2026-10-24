@@ -5,7 +5,7 @@ import { useToast } from '@/components/Toast';
 
 const DEFAULT_WEBHOOK_URL =
   process.env.NEXT_PUBLIC_ALUMNI_WEBHOOK_URL ||
-  'https://script.google.com/macros/s/AKfycbzu4Z42iXxEYSSh9eF9v_lkcoKl7gkeWnrrAdkrKXKdEKRr2tPdbLVCg9MEm3Bq8gyk/exec';
+  'https://script.google.com/macros/s/AKfycbwyEk47ApOWL-HP-W_LkaasySIjFJCXyQ78YOiKWBbXKN9FrBFs_HBXm9xhzaYDHiN85w/exec';
 
 type AlumniItem = {
   fullName: string; batchYear: string; relationship: string; location: string;
