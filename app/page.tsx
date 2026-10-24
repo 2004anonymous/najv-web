@@ -4,6 +4,7 @@
 // animate-slide-in, animate-float) and Font Awesome loaded in layout.tsx.
 import Link from 'next/link';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import SchoolNotices from "@/components/SchoolNotices";
 
 /* ---------- Edit your content here ---------- */
 const SITE = { phone: '+919876543210', email: 'info@nilmoniadarsha.edu.in' };
@@ -191,6 +192,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <SchoolNotices />
 
       {/* NOTICES */}
       <section id="notices" className="py-20 border-t border-white/5">

@@ -1,0 +1,97 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function staff() {
+      return signedIn()
+        && exists(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.active == true;
+    }
+
+    function admin() {
+      return staff()
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role == "admin";
+    }
+
+    function editorOrAdmin() {
+      return staff()
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.role in ["admin", "editor"];
+    }
+
+    function validContent() {
+      return request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 15000
+        && request.resource.data.status in ["draft", "published"]
+        && request.resource.data.category is string
+        && request.resource.data.category.size() <= 80;
+    }
+
+    function validUpdate() {
+      return validContent()
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn()
+        && (request.auth.uid == uid || admin());
+
+      allow create, delete: if false;
+
+      allow update: if admin()
+        && request.resource.data.role in ["admin", "editor"]
+        && request.resource.data.active is bool;
+    }
+
+    match /notices/{id} {
+      allow read: if resource.data.status == "published"
+        || editorOrAdmin();
+
+      allow create: if editorOrAdmin()
+        && validContent()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if editorOrAdmin()
+        && validUpdate()
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if admin();
+    }
+
+    match /events/{id} {
+      allow read: if resource.data.status == "published"
+        || editorOrAdmin();
+
+      allow create: if editorOrAdmin()
+        && validContent()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if editorOrAdmin()
+        && validUpdate()
+        && request.resource.data.updatedAt == request.time;
+
+      allow delete: if admin();
+    }
+  }
+}
