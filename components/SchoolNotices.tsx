@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { getPublishedContent, type SchoolContent } from "@/lib/firebase/content";
 
 export default function SchoolNotices() {
