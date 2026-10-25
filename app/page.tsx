@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import SchoolNotices from "@/components/SchoolNotices";
 
 /* ---------- Edit your content here ---------- */
-const SITE = { phone: '+919876543210', email: 'info@nilmoniadarsha.edu.in' };
+const SITE = { phone: '+918638133781', email: 'najvalumni25@gmail.com' };
 const SLIDES = [
   { src: '/slides/1.jpeg', title: 'Nurturing Bright Minds', sub: 'A caring place to learn and grow' },
   { src: '/slides/2.jpeg', title: 'Silver Jubilee · 25 Years', sub: '2001 – 2026 of academic excellence' },
@@ -96,9 +96,9 @@ const Eyebrow = ({ icon, children }: { icon?: string; children: ReactNode }) => 
 /* ---------- Page ---------- */
 export default function HomePage() {
   const [notices, setNotices] = useState<Notice[]>(FALLBACK_NOTICES);
-  useEffect(() => {
-    fetch('/api/notices').then((r) => (r.ok ? r.json() : Promise.reject())).then((d: Notice[]) => { if (d.length) setNotices(d.slice(0, 4)); }).catch(() => {});
-  }, []);
+  // useEffect(() => {
+  //   fetch('/api/notices').then((r) => (r.ok ? r.json() : Promise.reject())).then((d: Notice[]) => { if (d.length) setNotices(d.slice(0, 4)); }).catch(() => {});
+  // }, []);
   const delay = (ms: number) => ({ animationDelay: `${ms}ms` });
 
   return (
@@ -194,32 +194,6 @@ export default function HomePage() {
       </section>
 
       <SchoolNotices />
-
-      {/* NOTICES */}
-      <section id="notices" className="py-20 border-t border-white/5">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Reveal className="flex items-center justify-between mb-8">
-            <div><Eyebrow>Updates</Eyebrow><h2 className="font-heading font-bold text-2xl sm:text-3xl text-white">School Announcements</h2></div>
-            <Link href="/notices" className="px-3 py-1 rounded-full bg-brand-500/10 text-brand-glow text-xs font-medium hover:bg-brand-500/20 transition">View All →</Link>
-          </Reveal>
-          <div className="space-y-4">
-            {notices.map((n, k) => (
-              <Reveal key={n.id} delay={k * 100}>
-                <Link href={`/notices/${n.id}`} className="glass-card p-5 rounded-2xl flex items-center justify-between gap-4 hover:-translate-y-0.5">
-                  <div className="flex items-start space-x-4 min-w-0">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-bold shrink-0 ${k === 0 ? 'bg-brand-600/20 text-brand-glow' : 'bg-white/5 text-slate-400'}`}>{k === 0 ? 'NEW' : 'INFO'}</div>
-                    <div className="min-w-0">
-                      <h4 className="font-heading font-semibold text-sm sm:text-base text-white">{n.title}</h4>
-                      <p className="text-slate-400 text-xs mt-0.5 line-clamp-2">{n.body}</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] text-slate-500 shrink-0">{n.date}</span>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CONTACT */}
       <section id="contact" className="py-20 bg-dark-bg/60 border-t border-white/5">

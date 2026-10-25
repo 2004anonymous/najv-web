@@ -1,66 +1,165 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
-import { getPublishedContent, type SchoolContent } from "@/lib/firebase/content";
+import { ReactNode, useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  getPublishedContent,
+  type SchoolContent,
+} from "@/lib/firebase/content";
+
+// Keep your existing Reveal, Eyebrow, and brand styles from the project.
+// This component uses lightweight local versions if they aren't exported elsewhere.
+
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <div
+      className={className}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+const Eyebrow = ({ icon, children }: { icon?: string; children: ReactNode }) => (
+  <div className="inline-flex items-center space-x-2 text-brand-emerald font-semibold text-xs uppercase tracking-wider">
+    {icon && <i className={`fa-solid ${icon} text-xs`} />}<span>{children}</span>
+  </div>
+);
 
 export default function SchoolNotices() {
   const [notices, setNotices] = useState<SchoolContent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    getPublishedContent("notices")
-      .then(setNotices)
-      .catch((error) => {
-        console.error("Could not load school notices:", error);
-      })
-      .finally(() => setLoading(false));
+    let cancelled = false;
+
+    async function loadNotices() {
+      try {
+        const result = await getPublishedContent("notices");
+
+        if (!cancelled) {
+          // Pinned notices first; otherwise preserve the Firestore ordering.
+          setNotices(
+            [...result].sort(
+              (a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned))
+            )
+          );
+        }
+      } catch (err) {
+        console.error("Could not load school notices:", err);
+
+        if (!cancelled) {
+          setError("Unable to load school notices right now.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadNotices();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  if (loading) {
-    return <p className="text-sm text-slate-400">Loading notices...</p>;
-  }
+  const formatDate = (notice: SchoolContent) => {
+    if (notice.date) return notice.date;
 
-  if (!notices.length) {
-    return <p className="text-sm text-slate-400">No notices available at present.</p>;
-  }
+    const timestamp = notice.updatedAt as
+      | { toDate?: () => Date }
+      | undefined;
+
+    if (timestamp?.toDate) {
+      return timestamp.toDate().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    }
+
+    return "";
+  };
 
   return (
-    <div className="space-y-4">
-      {notices.map((notice) => (
-        <article
-          key={notice.id}
-          className="rounded-xl border border-white/10 bg-white/5 p-5"
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-sky-400/10 px-3 py-1 text-xs text-sky-300">
-              {notice.category}
-            </span>
-            {notice.pinned && (
-              <span className="text-xs text-amber-300">Pinned</span>
-            )}
+    <section id="notices" className="py-20 border-t border-white/5">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Reveal className="flex items-center justify-between mb-8">
+          <div>
+            <Eyebrow>Updates</Eyebrow>
+            <h2 className="font-heading font-bold text-2xl sm:text-3xl text-white">
+              School Announcements
+            </h2>
           </div>
 
-          <h3 className="mt-3 text-lg font-semibold text-white">
-            {notice.title}
-          </h3>
+          <Link
+            href="/notices"
+            className="px-3 py-1 rounded-full bg-brand-500/10 text-brand-glow text-xs font-medium hover:bg-brand-500/20 transition"
+          >
+            View All →
+          </Link>
+        </Reveal>
 
-          <p className="mt-2 whitespace-pre-line text-sm text-slate-300">
-            {notice.description}
+        {loading ? (
+          <p className="text-sm text-slate-400">Loading notices...</p>
+        ) : error ? (
+          <p className="text-sm text-slate-400">{error}</p>
+        ) : notices.length === 0 ? (
+          <p className="text-sm text-slate-400">
+            No notices available at present.
           </p>
+        ) : (
+          <div className="space-y-4">
+            {notices.slice(0, 5).map((n, k) => (
+              <Reveal key={n.id} delay={k * 100}>
+                <Link
+                  href={`/notices/${n.id}`}
+                  className="glass-card p-5 rounded-2xl flex items-center justify-between gap-4 hover:-translate-y-0.5"
+                >
+                  <div className="flex items-start space-x-4 min-w-0">
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                        k === 0
+                          ? "bg-brand-600/20 text-brand-glow"
+                          : "bg-white/5 text-slate-400"
+                      }`}
+                    >
+                      {k === 0 ? "NEW" : "INFO"}
+                    </div>
 
-          {notice.pdfUrl && (
-            <a
-              href={notice.pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex text-sm text-sky-300 underline"
-            >
-              View notice PDF ↗
-            </a>
-          )}
-        </article>
-      ))}
-    </div>
+                    <div className="min-w-0">
+                      <h4 className="font-heading font-semibold text-sm sm:text-base text-white">
+                        {n.title}
+                      </h4>
+
+                      <p className="text-slate-400 text-xs mt-0.5 line-clamp-2">
+                        {n.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="text-[11px] text-slate-500 shrink-0">
+                    {formatDate(n)}
+                  </span>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
