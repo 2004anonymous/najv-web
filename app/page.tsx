@@ -21,7 +21,6 @@ const WINGS = [
   ['02', 'Middle School', 'Classes VI – VIII', 'Conceptual clarity in Science, Mathematics, Languages, and basic IT skills.', 'bg-brand-emerald/10 text-brand-emerald'],
   ['03', 'High School', 'Classes IX – X (SEBA)', 'Comprehensive prep for HSLC board exams with regular assessments and evaluation.', 'bg-brand-500/10 text-brand-glow'],
 ];
-type Notice = { id: string; title: string; body: string; date: string };
 
 /* ---------- Scroll reveal ---------- */
 function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
