@@ -5,6 +5,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import SchoolNotices from "@/components/SchoolNotices";
+import Image from 'next/image';
 
 /* ---------- Edit your content here ---------- */
 const SITE = { phone: '+918638133781', email: 'najvalumni25@gmail.com' };
@@ -21,10 +22,6 @@ const WINGS = [
   ['03', 'High School', 'Classes IX – X (SEBA)', 'Comprehensive prep for HSLC board exams with regular assessments and evaluation.', 'bg-brand-500/10 text-brand-glow'],
 ];
 type Notice = { id: string; title: string; body: string; date: string };
-const FALLBACK_NOTICES: Notice[] = [
-  { id: 'n1', title: 'Alumni Network Portal Live', body: 'Ex-students can now register their details on our dedicated Alumni page.', date: '2026-10-24' },
-  { id: 'n2', title: 'New Session Admission Queries', body: 'Prospectus and entry details available at the administrative desk.', date: '2026-10-20' },
-];
 
 /* ---------- Scroll reveal ---------- */
 function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
@@ -65,7 +62,14 @@ function HeroSlider() {
       onTouchEnd={(e) => { const d = e.changedTouches[0].clientX - startX.current; if (Math.abs(d) > 50) go(i + (d < 0 ? 1 : -1)); }}>
       {SLIDES.map((s, n) => (
         <div key={n} className={`absolute inset-0 overflow-hidden transition-opacity duration-1000 ${n === i ? 'opacity-100' : 'opacity-0'}`}>
-          <img src={s.src} alt={s.title} className={`w-full h-full object-cover ${n === i ? 'animate-kenburns' : ''}`} />
+          <Image
+  src={s.src}
+  alt={s.title}
+  fill
+  priority={n === i}
+  sizes="100vw"
+  className={`object-cover ${n === i ? 'animate-kenburns' : ''}`}
+/>
         </div>
       ))}
       <div className="absolute inset-0 bg-gradient-to-b from-dark-bg/85 via-dark-bg/65 to-dark-bg" />
@@ -95,10 +99,6 @@ const Eyebrow = ({ icon, children }: { icon?: string; children: ReactNode }) => 
 
 /* ---------- Page ---------- */
 export default function HomePage() {
-  const [notices, setNotices] = useState<Notice[]>(FALLBACK_NOTICES);
-  // useEffect(() => {
-  //   fetch('/api/notices').then((r) => (r.ok ? r.json() : Promise.reject())).then((d: Notice[]) => { if (d.length) setNotices(d.slice(0, 4)); }).catch(() => {});
-  // }, []);
   const delay = (ms: number) => ({ animationDelay: `${ms}ms` });
 
   return (
